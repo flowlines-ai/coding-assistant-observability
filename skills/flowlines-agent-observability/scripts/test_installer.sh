@@ -83,7 +83,11 @@ for FLOWLINES_PRIVATE_FILE in \
   "${FLOWLINES_AGENT_CONFIG_HOME}/flowlines-agent-observability/originals/codex.original" \
   "${FLOWLINES_AGENT_CONFIG_HOME}/flowlines-agent-observability/originals/hooks.original"
 do
-  FLOWLINES_MODE=$(stat -f '%Lp' "${FLOWLINES_PRIVATE_FILE}" 2>/dev/null || stat -c '%a' "${FLOWLINES_PRIVATE_FILE}")
+  case "$(uname -s)" in
+    Darwin) FLOWLINES_MODE=$(stat -f '%Lp' "${FLOWLINES_PRIVATE_FILE}") ;;
+    Linux) FLOWLINES_MODE=$(stat -c '%a' "${FLOWLINES_PRIVATE_FILE}") ;;
+    *) printf '%s\n' "Unsupported test platform." >&2; exit 1 ;;
+  esac
   [ "${FLOWLINES_MODE}" = "600" ]
 done
 
